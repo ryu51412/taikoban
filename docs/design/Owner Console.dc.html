@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f7f2ea; }
+  body { font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; color: #241f3d; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #6852c1; text-decoration: none; }
+  a:hover { color: #52409c; }
+  input, select, textarea { font-family: inherit; }
+  :focus-visible { outline: 2.5px solid #6852c1; outline-offset: 2px; border-radius: 6px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #f7f2ea; display: flex; flex-direction: column;">
+
+  <header style="position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(36,31,61,0.1); padding: 12px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <span style="width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(140deg, #6852c1, #8474cd); color: #ffffff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center;">判</span>
+      <span style="font-size: 15px; font-weight: 900;">太鼓判くん</span>
+      <span style="font-size: 11px; font-weight: 700; color: #8b7f63; letter-spacing: 0.06em; padding-left: 2px;">店舗管理</span>
+    </div>
+
+    <div style="flex: 1; min-width: 20px;"></div>
+
+    <sc-if value="{{ isOwner }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 10px; background: #f7f2ea; border: 1px solid rgba(36,31,61,0.12);">
+        <span style="width: 22px; height: 22px; border-radius: 6px; background: #241f3d; color: #ffffff; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center;">丑</span>
+        <span style="font-size: 13px; font-weight: 700;">ホルモン丑之助</span>
+        <span style="font-size: 11px; color: #8b7f63;">オーナー権限</span>
+      </div>
+    </sc-if>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #fdf8ec; color: #8a5f20; font-size: 12px; font-weight: 700;">
+        <span style="width: 6px; height: 6px; border-radius: 999px; background: #b8873a;"></span>未対応のご意見 {{ openFeedback }}
+      </div>
+      <span style="width: 30px; height: 30px; border-radius: 999px; background: #241f3d; color: #ffffff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">RI</span>
+    </div>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; flex: 1; align-items: stretch;">
+
+    <nav style="flex: 1 1 216px; max-width: 260px; min-width: 200px; padding: 18px 12px; border-right: 1px solid rgba(36,31,61,0.1); display: flex; flex-direction: column; gap: 3px; align-self: flex-start; position: sticky; top: 56px;">
+      <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; color: #a49b7f; padding: 0 12px 10px;">{{ navLabel }}</div>
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+        <button style="{{ n.style }}" onClick="{{ n.select }}">
+          <span>{{ n.label }}</span>
+          <span style="font-size: 11px; font-weight: 700; color: #a49b7f;">{{ n.badge }}</span>
+        </button>
+      </sc-for>
+      <div style="margin-top: 18px; padding: 14px; border-radius: 14px; background: #f1edfb; border: 1px solid rgba(104,82,193,0.18);">
+        <div style="font-size: 11.5px; font-weight: 700; color: #52409c;">{{ planName }}</div>
+        <div style="font-size: 11.5px; color: #6e6693; margin-top: 4px; line-height: 1.7;">{{ planNote }}</div>
+      </div>
+    </nav>
+
+    <main style="flex: 1 1 620px; min-width: 0; padding: 24px 26px 56px;">
+
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+        <div style="animation: fadeUp .3s ease both;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 900;">{{ activeStore.name }}</h1>
+            <span style="font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: #f1edfb; color: #52409c;">{{ activeStore.plan }}</span>
+            <span style="font-size: 12px; color: #6e6693;">最終更新 {{ activeStore.updated }}</span>
+          </div>
+
+          <div style="display: flex; gap: 6px; margin-top: 16px; flex-wrap: wrap;">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+              <button style="{{ t.style }}" onClick="{{ t.select }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ isTabSettings }}" hint-placeholder-val="{{ true }}">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; align-items: start;">
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+                <div style="font-size: 14px; font-weight: 700;">基本設定</div>
+                <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px;">
+                  <label style="display: block;">
+                    <span style="font-size: 12.5px; font-weight: 700;">店舗名</span>
+                    <input style="{{ inputStyle }}" value="{{ form.name }}" onChange="{{ setName }}" />
+                  </label>
+                  <label style="display: block;">
+                    <span style="font-size: 12.5px; font-weight: 700;">Google口コミのURL</span>
+                    <input style="{{ inputStyle }}" value="{{ form.url }}" onChange="{{ setUrl }}" />
+                  </label>
+                  <label style="display: block;">
+                    <span style="font-size: 12.5px; font-weight: 700;">特典メッセージ</span>
+                    <input style="{{ inputStyle }}" value="{{ form.coupon }}" onChange="{{ setCoupon }}" />
+                  </label>
+                </div>
+                <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(36,31,61,0.1); display: flex; flex-direction: column; gap: 12px;">
+                  <sc-for list="{{ toggles }}" as="g" hint-placeholder-count="3">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                      <div style="min-width: 0;">
+                        <div style="font-size: 13px; font-weight: 700;">{{ g.label }}</div>
+                        <div style="font-size: 11.5px; color: #6e6693; line-height: 1.6;">{{ g.desc }}</div>
+                      </div>
+                      <button style="{{ g.style }}" onClick="{{ g.toggle }}"><span style="{{ g.knob }}"></span></button>
+                    </div>
+                  </sc-for>
+                </div>
+                <button style="margin-top: 18px; padding: 12px 20px; border: none; border-radius: 999px; background: #6852c1; color: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;" style-hover="background: #5a45ad;" onClick="{{ save }}">{{ saveLabel }}</button>
+              </div>
+
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+                <div style="font-size: 14px; font-weight: 700;">選択肢</div>
+                <div style="font-size: 12px; color: #6e6693; margin-top: 4px;">お客様が「決め手」「メニュー」で選ぶ項目です。</div>
+                <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 14px;">
+                  <div>
+                    <span style="font-size: 12.5px; font-weight: 700;">決め手</span>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin-top: 6px;">
+                      <sc-for list="{{ aspectInputs }}" as="a" hint-placeholder-count="3">
+                        <input style="{{ inputStyleTight }}" value="{{ a.value }}" onChange="{{ a.set }}" />
+                      </sc-for>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size: 12.5px; font-weight: 700;">おすすめメニュー</span>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin-top: 6px;">
+                      <sc-for list="{{ menuInputs }}" as="m" hint-placeholder-count="3">
+                        <input style="{{ inputStyleTight }}" value="{{ m.value }}" onChange="{{ m.set }}" />
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 18px; padding: 14px 16px; border-radius: 14px; background: #faf7f1; border: 1px solid rgba(36,31,61,0.1); font-size: 12px; color: #4b4272; line-height: 1.8;">選択肢を変えると、生成される文章の言い回しも変わります。3つとも埋めてください。</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isTabQr }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; align-items: start;">
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+                <div style="font-size: 14px; font-weight: 700;">QRコード</div>
+                <div style="font-size: 12px; color: #6e6693; margin-top: 4px;">読み取り先：{{ form.url }}</div>
+                <div style="margin: 18px auto 0; width: 190px; height: 190px; border-radius: 12px; background-image: repeating-linear-gradient(45deg, #ded5ef 0 7px, #f4f0fc 7px 14px); border: 1px solid rgba(36,31,61,0.14); display: flex; align-items: center; justify-content: center;">
+                  <span style="font-size: 11px; font-weight: 700; color: #6b6396; background: #ffffff; padding: 5px 9px; border-radius: 6px;">QRコード</span>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; justify-content: center;">
+                  <sc-for list="{{ qrDownloads }}" as="d" hint-placeholder-count="3">
+                    <button style="padding: 10px 16px; border: 1px solid rgba(104,82,193,0.3); border-radius: 999px; background: #ffffff; color: #52409c; font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;" style-hover="background: #f1edfb;" onClick="{{ d.download }}">{{ d.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                  <div>
+                    <div style="font-size: 14px; font-weight: 700;">卓上POPテンプレート</div>
+                    <div style="font-size: 12px; color: #6e6693; margin-top: 4px;">印刷してレジ横やテーブルに置くだけ。</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 5px; margin-top: 14px;">
+                  <sc-for list="{{ popTones }}" as="t" hint-placeholder-count="3">
+                    <button style="{{ t.style }}" onClick="{{ t.select }}">{{ t.label }}</button>
+                  </sc-for>
+                </div>
+
+                <div style="margin-top: 14px; padding: 26px 22px; border-radius: 16px; background: #e9e2d4; display: flex; justify-content: center;">
+                  <div style="{{ popSheetStyle }}">
+                    <div style="{{ popTopStyle }}">
+                      <span style="{{ popStoreStyle }}">{{ previewName }}</span>
+                    </div>
+
+                    <div style="padding: 20px 22px 0; text-align: center;">
+                      <div style="{{ popEyebrowStyle }}">ご来店ありがとうございます</div>
+                      <div style="{{ popTitleStyle }}">今日のご感想を<br />★ひとつから。</div>
+                      <div style="display: flex; justify-content: center; gap: 4px; margin-top: 12px;">
+                        <span style="{{ popStarStyle }}">★</span>
+                        <span style="{{ popStarStyle }}">★</span>
+                        <span style="{{ popStarStyle }}">★</span>
+                        <span style="{{ popStarStyle }}">★</span>
+                        <span style="{{ popStarStyle }}">★</span>
+                      </div>
+                    </div>
+
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px 22px 14px;">
+                      <div style="position: relative; padding: 10px;">
+                        <span style="{{ popCornerTL }}"></span>
+                        <span style="{{ popCornerTR }}"></span>
+                        <span style="{{ popCornerBL }}"></span>
+                        <span style="{{ popCornerBR }}"></span>
+                        <div style="{{ popQrStyle }}">
+                          <span style="font-size: 9px; font-weight: 700; color: #6b6558; background: #ffffff; padding: 3px 6px; border-radius: 4px;">QR</span>
+                        </div>
+                      </div>
+                      <div style="{{ popScanStyle }}">カメラをかざすだけ ・ 約30秒</div>
+                    </div>
+
+                    <div style="{{ popCouponStyle }}">
+                      <span style="{{ popCouponTagStyle }}">特典</span>
+                      <span style="min-width: 0;">{{ form.coupon }}</span>
+                    </div>
+
+                    <div style="{{ popFootStyle }}">
+                      <span style="{{ popFootMarkStyle }}">判</span>
+                      <span>太鼓判くん</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+                  <button style="flex: 1; min-width: 150px; padding: 12px; border: none; border-radius: 999px; background: #241f3d; color: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;" style-hover="background: #17142a;" onClick="{{ printPop }}">印刷用PDFを開く</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isTabPreview }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top: 16px; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
+              <div>
+                <div style="font-size: 14px; font-weight: 700;">お客様画面の確認</div>
+                <p style="font-size: 13px; color: #6e6693; margin: 8px 0 0; line-height: 1.85;">設定した内容が反映された実際のページを開いて確認できます。公開前にスマホでも読み取ってみてください。</p>
+                <div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;">
+                  <a href="Review Page.dc.html" target="_blank" rel="noopener" style="padding: 12px 20px; border-radius: 999px; background: #6852c1; color: #ffffff; font-size: 13.5px; font-weight: 700;" style-hover="background: #5a45ad; color: #ffffff;">お客様画面を開く</a>
+                  <button style="padding: 12px 18px; border: 1px solid rgba(36,31,61,0.16); border-radius: 999px; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #241f3d; cursor: pointer;" style-hover="background: #faf7f1;" onClick="{{ copyLink }}">ページURLをコピー</button>
+                </div>
+                <div style="margin-top: 14px; font-size: 12px; color: #8b7f63; font-weight: 700;">{{ copyState }}</div>
+              </div>
+              <div style="display: flex; justify-content: center;">
+                <div style="width: 240px; border-radius: 24px; background: #16112b; padding: 9px;">
+                  <div style="background: #f7f4ee; border-radius: 17px; padding: 14px 12px; text-align: center;">
+                    <div style="background: linear-gradient(155deg, #6852c1, #8474cd); border-radius: 14px; padding: 14px 12px; color: #ffffff;">
+                      <div style="font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.85);">ご来店ありがとうございました</div>
+                      <div style="font-size: 14px; font-weight: 900; margin-top: 4px;">{{ previewName }}</div>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 1px; margin-top: 12px;">
+                      <span style="font-size: 20px; color: #6852c1;">★</span>
+                      <span style="font-size: 20px; color: #6852c1;">★</span>
+                      <span style="font-size: 20px; color: #6852c1;">★</span>
+                      <span style="font-size: 20px; color: #6852c1;">★</span>
+                      <span style="font-size: 20px; color: #ded5ef;">★</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isFeedback }}" hint-placeholder-val="{{ false }}">
+        <div style="animation: fadeUp .3s ease both;">
+          <h1 style="margin: 0; font-size: 24px; font-weight: 900;">届いたご意見</h1>
+          <p style="margin: 4px 0 0; font-size: 13px; color: #6e6693;">Googleに投稿された口コミと、お店にだけ届いたご意見の両方です。{{ feedbackSummary }}</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 18px;">
+            <sc-for list="{{ fbStats }}" as="k" hint-placeholder-count="4">
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 14px; padding: 16px;">
+                <div style="font-size: 11.5px; color: #6e6693;">{{ k.label }}</div>
+                <div style="font-size: 22px; font-weight: 900; margin-top: 4px;">{{ k.value }}</div>
+                <div style="font-size: 11.5px; color: #8b7f63; margin-top: 4px;">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin-top: 12px; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 16px; padding: 20px;">
+            <div style="font-size: 14px; font-weight: 700;">ご意見フォームで指摘された内容</div>
+            <div style="display: flex; flex-direction: column; gap: 9px; margin-top: 16px;">
+              <sc-for list="{{ fbTags }}" as="t" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: 92px minmax(0, 1fr) 38px; align-items: center; gap: 12px;">
+                  <div style="font-size: 12.5px; color: #4b4272;">{{ t.label }}</div>
+                  <div style="height: 9px; border-radius: 999px; background: #f4f1ea; overflow: hidden;"><div style="{{ t.barStyle }}"></div></div>
+                  <div style="font-size: 11.5px; font-weight: 700; text-align: right;">{{ t.count }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+            <sc-for list="{{ feedbackFilters }}" as="f" hint-placeholder-count="3">
+              <button style="{{ f.style }}" onClick="{{ f.select }}">{{ f.label }}</button>
+            </sc-for>
+            <div style="margin-left: auto; align-self: center; font-size: 12px; color: #6e6693;">{{ fbListLabel }}</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+            <sc-for list="{{ feedbackList }}" as="f" hint-placeholder-count="4">
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 16px; padding: 18px 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <span style="color: #b8873a; font-size: 13px; letter-spacing: 0.1em;">{{ f.stars }}</span>
+                  <span style="font-size: 12px; color: #8b7f63;">{{ f.when }}</span>
+                  <span style="{{ f.routeStyle }}">{{ f.routeLabel }}</span>
+                  <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+                    <span style="{{ f.statusStyle }}">{{ f.statusLabel }}</span>
+                    <button style="{{ f.actionStyle }}" onClick="{{ f.toggle }}">{{ f.actionLabel }}</button>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px;">
+                  <sc-for list="{{ f.tags }}" as="t" hint-placeholder-count="2">
+                    <span style="font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #faf7f1; border: 1px solid rgba(36,31,61,0.1); color: #6e6693;">{{ t.label }}</span>
+                  </sc-for>
+                </div>
+                <p style="font-size: 13.5px; line-height: 1.85; color: #241f3d; margin: 10px 0 0;">{{ f.text }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAnalytics }}" hint-placeholder-val="{{ false }}">
+        <div style="animation: fadeUp .3s ease both;">
+          <h1 style="margin: 0; font-size: 24px; font-weight: 900;">集計</h1>
+          <p style="margin: 4px 0 0; font-size: 13px; color: #6e6693;">太鼓判くんのページ内で計測できる数値です。Google側の口コミ件数・評価は含みません。</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 18px;">
+            <sc-for list="{{ analyticsKpis }}" as="k" hint-placeholder-count="4">
+              <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 14px; padding: 16px;">
+                <div style="font-size: 11.5px; color: #6e6693;">{{ k.label }}</div>
+                <div style="font-size: 24px; font-weight: 900; margin-top: 4px;">{{ k.value }}</div>
+                <div style="font-size: 11.5px; color: #8b7f63; margin-top: 4px;">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-top: 16px;">
+            <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+              <div style="font-size: 14px; font-weight: 700;">週ごとのタップ数</div>
+              <div style="display: flex; align-items: flex-end; gap: 8px; height: 170px; margin-top: 20px;">
+                <sc-for list="{{ weekly }}" as="w" hint-placeholder-count="10">
+                  <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; gap: 6px;">
+                    <div style="{{ w.barStyle }}"></div>
+                    <div style="font-size: 9.5px; color: #a49b7f; text-align: center;">{{ w.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+              <div style="font-size: 14px; font-weight: 700;">★の分布</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <sc-for list="{{ distribution }}" as="d" hint-placeholder-count="5">
+                  <div style="display: grid; grid-template-columns: 44px minmax(0, 1fr) 46px; align-items: center; gap: 12px;">
+                    <div style="font-size: 12px; color: #6e6693;">{{ d.label }}</div>
+                    <div style="height: 9px; border-radius: 999px; background: #f1edfb; overflow: hidden;"><div style="{{ d.barStyle }}"></div></div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-align: right;">{{ d.count }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(36,31,61,0.1); font-size: 12px; color: #6e6693; line-height: 1.8;">★4未満は {{ lowCount }} 件。すべてご意見フォームに回っています。</div>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px;">
+              <div style="font-size: 14px; font-weight: 700;">投稿までの到達</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="4">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                      <span style="font-weight: 700;">{{ f.label }}</span>
+                      <span style="color: #6e6693;">{{ f.value }}</span>
+                    </div>
+                    <div style="height: 22px; border-radius: 8px; background: #f1edfb; overflow: hidden;"><div style="{{ f.barStyle }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+
+    </main>
+  </div>
+
+  <div style="{{ toastStyle }}">{{ toast }}</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:860},&quot;initialScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;analytics&quot;,&quot;feedback&quot;,&quot;detail&quot;],&quot;default&quot;:&quot;analytics&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;表示&quot;}}">
+const STORES = [
+  { id: 1, mark: "丑", name: "ホルモン丑之助", plan: "スタンダード", taps: 412, avg: 4.5, reach: "72%", status: "公開中", updated: "9/14" },
+  { id: 2, mark: "蔵", name: "焙煎所 蔵前", plan: "スタンダード", taps: 288, avg: 4.6, reach: "75%", status: "公開中", updated: "9/12" },
+  { id: 3, mark: "海", name: "海鮮居酒屋 いそ松", plan: "ライト", taps: 196, avg: 4.2, reach: "64%", status: "公開中", updated: "9/11" },
+  { id: 4, mark: "麺", name: "手打ちうどん 結", plan: "ライト", taps: 174, avg: 4.4, reach: "69%", status: "公開中", updated: "9/9" },
+  { id: 5, mark: "焼", name: "炭火焼鳥 とりいち", plan: "スタンダード", taps: 331, avg: 4.3, reach: "70%", status: "公開中", updated: "9/8" },
+  { id: 6, mark: "洋", name: "洋食キッチン まるやま", plan: "ライト", taps: 121, avg: 4.1, reach: "58%", status: "公開中", updated: "9/5" },
+  { id: 7, mark: "喫", name: "喫茶 ひるね", plan: "ライト", taps: 88, avg: 4.7, reach: "78%", status: "公開中", updated: "9/3" },
+  { id: 8, mark: "鮨", name: "鮨 たかや", plan: "スタンダード", taps: 143, avg: 4.8, reach: "81%", status: "公開中", updated: "9/2" },
+  { id: 9, mark: "美", name: "ヘアサロン NIJI", plan: "ライト", taps: 64, avg: 4.5, reach: "66%", status: "準備中", updated: "8/30" },
+  { id: 10, mark: "整", name: "からだ整院 みなみ", plan: "ライト", taps: 0, avg: 0, reach: "—", status: "未発行", updated: "8/28" }
+];
+
+const FEEDBACK = [
+  { id: 1, route: "form", rating: 2, when: "9/14 21:40", tags: ["待ち時間"], text: "土曜の混雑時、注文から提供まで25分ほどかかりました。列の案内がないので店内で立ち尽くす人が多かったです。味は良いので運用だけ見直してほしいです。", done: false },
+  { id: 2, route: "google", rating: 5, when: "9/14 20:02", tags: ["旨味", "肉さし"], text: "ホルモン丑之助に伺いました。旨味がしっかりしていて、箸が止まりませんでした。肉さしが特においしかったです。また利用したいと思います。", done: true },
+  { id: 3, route: "form", rating: 1, when: "9/13 20:12", tags: ["接客", "会計"], text: "テイクアウトの注文を間違えられ、指摘しても謝罪がありませんでした。混雑時の連携を見直していただけると嬉しいです。", done: false },
+  { id: 4, route: "google", rating: 5, when: "9/13 19:24", tags: ["ビール", "ビビンバ"], text: "ホルモン丑之助を利用しました。キンキンに冷えたビールとの相性が抜群でした。ビビンバは特におすすめです。リピートしたいお店です。", done: true },
+  { id: 5, route: "form", rating: 2, when: "9/12 19:05", tags: ["店内の清潔さ"], text: "座敷の座卓が少しべたついていました。忙しい時間帯だったと思いますが、気になってしまいました。", done: false },
+  { id: 6, route: "google", rating: 4, when: "9/12 18:41", tags: ["店員", "白米"], text: "先日、ホルモン丑之助でお食事しました。店員さんの対応が気持ちよく、居心地の良い時間でした。白米をぜひ食べてみてほしいです。友人にもおすすめしたいです。", done: true },
+  { id: 7, route: "google", rating: 5, when: "9/11 21:15", tags: ["旨味"], text: "ホルモン丑之助へ行ってきました。噛むほどに旨味が広がって感動しました。また利用したいと思います。", done: true },
+  { id: 8, route: "form", rating: 2, when: "9/10 13:22", tags: ["価格", "料理の味"], text: "ランチのボリュームが以前より減ったように感じました。価格が上がるのは仕方ないので、その分の説明があると納得できます。", done: true },
+  { id: 9, route: "google", rating: 5, when: "9/9 20:30", tags: ["ビール", "肉さし"], text: "ホルモン丑之助に伺いました。ビールがすすむ味付けで、つい何杯もいただきました。肉さしが特においしかったです。機会があればまた行きたいと思います。", done: true },
+  { id: 10, route: "form", rating: 1, when: "9/7 22:48", tags: ["待ち時間"], text: "予約していたのに20分以上待ちました。到着時の案内があれば気にならなかったと思います。", done: true },
+  { id: 11, route: "google", rating: 4, when: "9/7 19:12", tags: ["店員"], text: "ホルモン丑之助を利用しました。店員さんのおすすめが的確で助かりました。リピートしたいお店です。", done: true },
+  { id: 12, route: "form", rating: 2, when: "9/5 20:31", tags: ["待ち時間", "接客"], text: "追加注文が通っておらず、確認をお願いしても回答まで時間がかかりました。人手が足りていない印象でした。", done: true },
+  { id: 13, route: "google", rating: 5, when: "9/5 19:03", tags: ["旨味", "ビビンバ"], text: "先日、ホルモン丑之助でお食事しました。素材の旨味が濃く、想像以上の美味しさでした。特にビビンバが印象に残りました。友人にもおすすめしたいです。", done: true },
+  { id: 14, route: "form", rating: 3, when: "9/3 19:58", tags: ["店内の清潔さ"], text: "換気はされていましたが、煙のにおいが服に強く残りました。上着を預かってもらえると助かります。", done: true },
+  { id: 15, route: "google", rating: 5, when: "9/2 20:47", tags: ["ビール", "白米"], text: "ホルモン丑之助へ行ってきました。ビールと一緒にいただくと最高でした。白米は特におすすめです。また利用したいと思います。", done: true },
+  { id: 16, route: "form", rating: 2, when: "8/31 21:10", tags: ["価格"], text: "ドリンクの値段が分かりにくく、会計で驚きました。メニューに税込表示があると安心です。", done: true },
+  { id: 17, route: "google", rating: 4, when: "8/31 18:22", tags: ["店員", "ビビンバ"], text: "ホルモン丑之助を利用しました。スタッフの方が親切で、安心して過ごせました。ビビンバをぜひ食べてみてほしいです。機会があればまた行きたいと思います。", done: true },
+  { id: 18, route: "google", rating: 5, when: "8/29 20:05", tags: ["旨味", "肉さし"], text: "ホルモン丑之助に伺いました。旨味がしっかりしていて、箸が止まりませんでした。肉さしが特においしかったです。リピートしたいお店です。", done: true }
+];
+
+
+
+class Component extends DCLogic {
+  state = {
+    role: "owner",
+    screen: this.props.initialScreen || "analytics",
+    tab: "settings",
+    storeId: 1,
+    filter: "すべて",
+    popTone: "paper",
+    threshold: 4,
+    saved: false,
+    published: false,
+    copyState: "",
+    toast: "",
+    done: FEEDBACK.reduce((a, f) => Object.assign(a, { [f.id]: f.done }), {}),
+    toggles: { notify: true, coupon: true },
+    form: {
+      name: "ホルモン丑之助",
+      url: "https://g.page/r/CZLVVImPLaEtEAE/review",
+      coupon: "当日の利用のみ500円引き",
+      email: "ryuitirou1212@gmail.com",
+      aspects: ["旨味", "ビール", "店員"],
+      menus: ["肉さし", "ビビンバ", "白米"]
+    }
+  };
+
+  notify(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: "" }), 2200);
+  }
+
+  setForm(patch) { this.setState((st) => ({ form: Object.assign({}, st.form, patch) })); }
+
+  pill(active) {
+    return `padding: 9px 16px; border-radius: 999px; border: 1px solid ${active ? "#241f3d" : "rgba(36,31,61,0.16)"}; background: ${active ? "#241f3d" : "#ffffff"}; color: ${active ? "#ffffff" : "#4b4272"}; font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;`;
+  }
+
+  navBtn(active) {
+    return `display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 10px 12px; border: none; border-radius: 11px; cursor: pointer; font-family: inherit; font-size: 13px; text-align: left; background: ${active ? "#f1edfb" : "transparent"}; color: ${active ? "#52409c" : "#6e6693"}; font-weight: ${active ? 700 : 400};`;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const isOperator = s.role === "operator";
+    const active = STORES.find((x) => x.id === s.storeId) || STORES[0];
+    const inputStyle = "width: 100%; margin-top: 6px; padding: 11px 13px; border: 1px solid rgba(36,31,61,0.18); border-radius: 11px; font-size: 13.5px; color: #241f3d; background: #ffffff;";
+    const TONES = {
+      paper: { bg: "#faf6ee", ink: "#2a2620", sub: "#6b6558", faint: "#a39a88", line: "rgba(42,38,32,0.14)", edge: "rgba(42,38,32,0.16)", gold: "#9c7530" },
+      white: { bg: "#ffffff", ink: "#241f3d", sub: "#6e6693", faint: "#a49b7f", line: "rgba(36,31,61,0.12)", edge: "rgba(36,31,61,0.14)", gold: "#8a5f20" },
+      dark: { bg: "#231f2c", ink: "#f7f2ea", sub: "rgba(247,242,234,0.74)", faint: "rgba(247,242,234,0.45)", line: "rgba(247,242,234,0.2)", edge: "rgba(247,242,234,0.24)", gold: "#c9a862" }
+    };
+    const T = TONES[s.popTone] || TONES.paper;
+    const openCount = FEEDBACK.filter((x) => !s.done[x.id]).length;
+
+    const nav = [
+          { key: "analytics", label: "集計", badge: "" },
+          { key: "feedback", label: "届いたご意見", badge: String(openCount) },
+          { key: "detail", label: "店舗設定・QR", badge: "" }
+        ];
+    const screen = nav.some((n) => n.key === s.screen) ? s.screen : nav[0].key;
+
+    const fbSource = FEEDBACK;
+    const formOnly = fbSource.filter((x) => x.route === "form");
+    const googleOnly = fbSource.filter((x) => x.route === "google");
+    const fbList = fbSource.filter((x) =>
+      s.filter === "すべて" ? true
+      : s.filter === "Google投稿" ? x.route === "google"
+      : s.filter === "ご意見フォーム" ? x.route === "form"
+      : !s.done[x.id]);
+    const tagCounts = {};
+    formOnly.forEach((x) => x.tags.forEach((t) => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+    const tagRows = Object.keys(tagCounts).map((k) => ({ label: k, n: tagCounts[k] })).sort((x, y) => y.n - x.n);
+    const tagMax = tagRows[0] ? tagRows[0].n : 1;
+    const formCount = formOnly.length;
+    const weeklyData = [32, 36, 33, 40, 44, 38, 45, 42, 48, 54];
+    const lowByStar = { 3: 0, 2: 0, 1: 0 };
+    formOnly.forEach((x) => { if (lowByStar[x.rating] !== undefined) lowByStar[x.rating] += 1; });
+    const distData = [{ label: "★5", n: 262 }, { label: "★4", n: 113 }, { label: "★3", n: lowByStar[3] }, { label: "★2", n: lowByStar[2] }, { label: "★1", n: lowByStar[1] }];
+    const maxWeek = Math.max.apply(null, weeklyData);
+
+    return {
+      isOperator, isOwner: !isOperator,
+      navLabel: isOperator ? "OPERATOR" : "STORE OWNER",
+      navItems: nav.map((n) => ({
+        label: n.label, badge: n.badge,
+        style: this.navBtn(screen === n.key),
+        select: () => this.setState({ screen: n.key })
+      })),
+      planName: isOperator ? "運営アカウント" : "スタンダード",
+      planNote: isOperator ? `${STORES.length}店舗を管理中・発行枠は残り5` : "1店舗・ご意見通知つき",
+      openFeedback: openCount,
+
+      isDetail: screen === "detail",
+      isFeedback: screen === "feedback",
+      isAnalytics: screen === "analytics",
+
+      activeStore: { name: active.name, plan: active.plan, updated: active.updated + " 更新" },
+      tabs: [
+        { key: "settings", label: "設定" },
+        { key: "qr", label: "QRコード" },
+        { key: "preview", label: "プレビュー" }
+      ].map((t) => ({
+        label: t.label, style: this.pill(s.tab === t.key),
+        select: () => this.setState({ tab: t.key })
+      })),
+      isTabSettings: s.tab === "settings",
+      isTabQr: s.tab === "qr",
+      isTabPreview: s.tab === "preview",
+
+      inputStyle,
+      inputStyleTight: "width: 100%; padding: 10px 12px; border: 1px solid rgba(36,31,61,0.18); border-radius: 10px; font-size: 13px; color: #241f3d; background: #ffffff;",
+      form: s.form,
+      setName: (e) => this.setForm({ name: e.target.value }),
+      setUrl: (e) => this.setForm({ url: e.target.value }),
+      setCoupon: (e) => this.setForm({ coupon: e.target.value }),
+      setEmail: (e) => this.setForm({ email: e.target.value }),
+      aspectInputs: s.form.aspects.map((v, i) => ({
+        value: v,
+        set: (e) => { const a = s.form.aspects.slice(); a[i] = e.target.value; this.setForm({ aspects: a }); }
+      })),
+      menuInputs: s.form.menus.map((v, i) => ({
+        value: v,
+        set: (e) => { const m = s.form.menus.slice(); m[i] = e.target.value; this.setForm({ menus: m }); }
+      })),
+      thresholds: [2, 3, 4, 5].map((n) => ({
+        label: `★${n}以上`,
+        style: this.pill(s.threshold === n),
+        select: () => this.setState({ threshold: n })
+      })),
+      thresholdNote: `★${s.threshold}以上でGoogleの投稿へ、それ未満はご意見フォームに回ります。`,
+      publish: () => { this.setState({ published: true }); this.notify("ページを発行しました"); },
+      publishedStyle: `margin-top: 14px; font-size: 12.5px; font-weight: 700; color: #2f6b4f; display: ${s.published ? "block" : "none"};`,
+      save: () => { this.setState({ saved: true }); this.notify("設定を保存しました"); },
+      saveLabel: s.saved ? "保存しました" : "変更を保存",
+      toggles: [
+        { key: "notify", label: "ご意見をメールで通知", desc: "★が少なかった回答が届いたら、すぐにメールします。" },
+        { key: "coupon", label: "特典メッセージを表示", desc: "投稿後の画面に特典を出します。" }
+      ].map((g) => {
+        const on = s.toggles[g.key];
+        return {
+          label: g.label, desc: g.desc,
+          style: `margin-left: auto; flex: none; width: 44px; height: 26px; border-radius: 999px; border: none; cursor: pointer; padding: 3px; display: flex; justify-content: ${on ? "flex-end" : "flex-start"}; background: ${on ? "#6852c1" : "#ded7c9"};`,
+          knob: "width: 20px; height: 20px; border-radius: 999px; background: #ffffff; display: block;",
+          toggle: () => this.setState((st) => ({ toggles: Object.assign({}, st.toggles, { [g.key]: !st.toggles[g.key] }) }))
+        };
+      }),
+
+      previewName: s.form.name || "店舗名",
+      previewAspects: s.form.aspects.map((a, i) => ({
+        label: a || "—",
+        style: `font-size: 10.5px; font-weight: 700; padding: 6px 11px; border-radius: 999px; background: ${i === 0 ? "#6852c1" : "#ffffff"}; color: ${i === 0 ? "#ffffff" : "#4b4272"}; border: 1.5px solid ${i === 0 ? "#6852c1" : "#ded5ef"};`
+      })),
+      previewCouponStyle: `margin-top: 12px; font-size: 10.5px; font-weight: 700; color: #8a5f20; background: #fdf8ec; border: 1px dashed #b8873a; border-radius: 10px; padding: 8px; display: ${s.form.coupon ? "block" : "none"};`,
+      popTones: [
+        { key: "paper", label: "生成紙" },
+        { key: "white", label: "白" },
+        { key: "dark", label: "墨" }
+      ].map((t) => ({
+        label: t.label,
+        style: `padding: 6px 13px; border-radius: 999px; border: 1px solid ${s.popTone === t.key ? "#241f3d" : "rgba(36,31,61,0.16)"}; background: ${s.popTone === t.key ? "#241f3d" : "#ffffff"}; color: ${s.popTone === t.key ? "#ffffff" : "#6e6693"}; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;`,
+        select: () => this.setState({ popTone: t.key })
+      })),
+      popSheetStyle: `width: 240px; min-height: 352px; background: ${T.bg}; border: 1px solid ${T.edge}; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 0 rgba(36,31,61,0.04), 0 22px 36px -20px rgba(36,31,61,0.5); transition: background .3s ease;`,
+      popTopStyle: `padding: 11px 16px; border-bottom: 1px solid ${T.line}; text-align: center;`,
+      popStoreStyle: `font-size: 10px; font-weight: 700; letter-spacing: 0.24em; color: ${T.ink};`,
+      popEyebrowStyle: `font-size: 9.5px; letter-spacing: 0.12em; color: ${T.sub};`,
+      popTitleStyle: `font-size: 18px; font-weight: 900; line-height: 1.5; color: ${T.ink}; margin-top: 6px; letter-spacing: 0.02em;`,
+      popStarStyle: `font-size: 17px; line-height: 1; color: ${T.gold};`,
+      popQrStyle: `width: 112px; height: 112px; border-radius: 4px; background: #ffffff; background-image: repeating-linear-gradient(45deg, #d8d3c6 0 6px, #ffffff 6px 12px); display: flex; align-items: center; justify-content: center;`,
+      popCornerTL: `position: absolute; width: 16px; height: 16px; top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; border-radius: 5px 0 0 0; border-color: ${T.gold};`,
+      popCornerTR: `position: absolute; width: 16px; height: 16px; top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; border-radius: 0 5px 0 0; border-color: ${T.gold};`,
+      popCornerBL: `position: absolute; width: 16px; height: 16px; bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; border-radius: 0 0 0 5px; border-color: ${T.gold};`,
+      popCornerBR: `position: absolute; width: 16px; height: 16px; bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; border-radius: 0 0 5px 0; border-color: ${T.gold};`,
+      popScanStyle: `font-size: 10px; font-weight: 700; color: ${T.sub}; letter-spacing: 0.06em;`,
+      popCouponStyle: `margin: 0 16px 14px; padding: 9px 12px; border-radius: 6px; background: ${s.popTone === "dark" ? "rgba(201,168,98,0.12)" : "rgba(156,117,48,0.08)"}; color: ${T.ink}; font-size: 10.5px; font-weight: 700; line-height: 1.5; align-items: center; gap: 9px; display: ${s.form.coupon ? "flex" : "none"};`,
+      popCouponTagStyle: `flex: none; font-size: 9px; font-weight: 900; letter-spacing: 0.08em; padding: 3px 7px; border-radius: 3px; background: ${T.gold}; color: ${T.bg};`,
+      popFootStyle: `display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px; font-size: 8.5px; font-weight: 700; letter-spacing: 0.2em; color: ${T.faint}; border-top: 1px solid ${T.line};`,
+      popFootMarkStyle: `width: 14px; height: 14px; border-radius: 999px; border: 1px solid ${T.faint}; font-size: 7.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; letter-spacing: 0;`,
+      qrDownloads: ["PNG（画像）", "SVG（印刷用）", "PDF（卓上POP）"].map((label) => ({
+        label, download: () => this.notify(label + " をダウンロードしました")
+      })),
+      printPop: () => this.notify("印刷用PDFを生成しました"),
+      copyLink: () => { this.setState({ copyState: "ページURLをコピーしました" }); this.notify("URLをコピーしました"); },
+      copyState: s.copyState,
+
+      feedbackSummary: `直近 ${fbSource.length} 件の回答（Google投稿 ${googleOnly.length} / ご意見フォーム ${formOnly.length}）・未対応 ${openCount} 件`,
+      fbStats: [
+        { label: "直近の回答", value: String(fbSource.length), sub: "Google投稿 " + googleOnly.length + " 件" },
+        { label: "ご意見フォーム", value: String(formOnly.length), sub: "★4未満の回答" },
+        { label: "未対応", value: String(openCount), sub: openCount ? "対応をお願いします" : "すべて確認済み" },
+        { label: "最多の指摘", value: tagRows[0] ? tagRows[0].label : "—", sub: tagRows[0] ? `${tagRows[0].n}件（${Math.round((tagRows[0].n / formCount) * 100)}%）` : "—" }
+      ],
+      fbTags: tagRows.map((r) => ({
+        label: r.label, count: r.n + "件",
+        barStyle: `width: ${Math.round((r.n / tagMax) * 100)}%; height: 100%; border-radius: 999px; background: ${r.n === tagMax ? "#b8873a" : "#c9b89a"};`
+      })),
+      fbListLabel: `${fbList.length} 件を表示`,
+      feedbackFilters: ["すべて", "Google投稿", "ご意見フォーム", "未対応"].map((f) => ({
+        label: f, style: this.pill(s.filter === f),
+        select: () => this.setState({ filter: f })
+      })),
+      feedbackList: fbList.map((f) => {
+        const done = !!s.done[f.id];
+        const isG = f.route === "google";
+        return {
+          when: f.when, text: f.text,
+          stars: "★★★★★".slice(0, f.rating) + "☆☆☆☆☆".slice(0, 5 - f.rating),
+          tags: f.tags.map((t) => ({ label: t })),
+          routeLabel: isG ? "Googleに投稿" : "ご意見フォーム",
+          routeStyle: `font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: ${isG ? "#f1edfb" : "#faf1e2"}; color: ${isG ? "#52409c" : "#8a5f20"};`,
+          statusLabel: done ? (isG ? "確認済み" : "対応済み") : "未対応",
+          statusStyle: `font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: ${done ? "#eaf3ee" : "#fdf8ec"}; color: ${done ? "#2f6b4f" : "#8a5f20"};`,
+          actionLabel: done ? "未対応に戻す" : (isG ? "確認済みにする" : "対応済みにする"),
+          actionStyle: `padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(36,31,61,0.16); background: #ffffff; font-family: inherit; font-size: 11.5px; font-weight: 700; color: #4b4272; cursor: pointer;`,
+          toggle: () => this.setState((st) => ({ done: Object.assign({}, st.done, { [f.id]: !st.done[f.id] }) }))
+        };
+      }),
+
+      analyticsKpis: [
+        { label: "今月のタップ数", value: "412", sub: "前月比 +14%" },
+        { label: "平均★", value: "4.6", sub: "前月 4.5" },
+        { label: "投稿ボタン押下", value: "297", sub: "到達率 72%" },
+        { label: "ご意見フォーム", value: String(formCount), sub: "★4未満の回答" }
+      ],
+      weekly: weeklyData.map((v, i) => ({
+        label: "W" + (i + 1),
+        barStyle: `height: ${Math.round((v / maxWeek) * 100)}%; border-radius: 6px 6px 0 0; background: ${i === weeklyData.length - 1 ? "#6852c1" : "#b9aee4"};`
+      })),
+      distribution: distData.map((d) => ({
+        label: d.label, count: d.n,
+        barStyle: `width: ${Math.round((d.n / distData[0].n) * 100)}%; height: 100%; border-radius: 999px; background: ${d.label === "★5" || d.label === "★4" ? "#6852c1" : "#b8873a"};`
+      })),
+      lowCount: formCount,
+      funnel: [
+        { label: "QRを読み取った", value: "412", pct: 100 },
+        { label: "★をタップした", value: "383 (93%)", pct: 93 },
+        { label: "決め手を選んだ", value: "334 (81%)", pct: 81 },
+        { label: "投稿ボタンを押した", value: "297 (72%)", pct: 72 }
+      ].map((f, i) => ({
+        label: f.label, value: f.value,
+        barStyle: `width: ${f.pct}%; height: 100%; border-radius: 8px; background: ${i === 3 ? "#6852c1" : "#b9aee4"};`
+      })),
+
+      toast: s.toast,
+      toastStyle: `position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(${s.toast ? "0" : "8px"}); background: #241f3d; color: #f7f2ea; font-size: 13px; font-weight: 700; padding: 11px 20px; border-radius: 999px; box-shadow: 0 18px 32px -16px rgba(36,31,61,0.8); opacity: ${s.toast ? 1 : 0}; pointer-events: none; transition: opacity .25s ease, transform .25s ease; z-index: 40;`
+    };
+  }
+}
+
+</script>
+</body>
+</html>

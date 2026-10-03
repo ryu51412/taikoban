@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f7f2ea; }
+  body { font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; color: #241f3d; line-height: 1.75; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #6852c1; text-decoration: none; }
+  a:hover { color: #52409c; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; padding: clamp(28px, 5vw, 56px) 20px; background: #f7f2ea;">
+  <div style="max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(140deg, #6852c1, #8474cd); color: #ffffff; font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center;">判</span>
+      <span style="font-size: 16px; font-weight: 900;">太鼓判くん</span>
+    </div>
+    <h1 style="margin: 18px 0 0; font-size: clamp(22px, 3vw, 28px); font-weight: 900;">全ページ一覧</h1>
+    <p style="margin: 6px 0 0; font-size: 13.5px; color: #6e6693;">カードをクリックすると各ページが開きます。ブラウザの「戻る」で一覧に戻れます。</p>
+
+    <div style="margin-top: 30px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #6852c1;">お客様向け</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px;">
+      <a href="./Landing%20Page.dc.html" style="display: block; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px; color: #241f3d;" style-hover="border-color: #6852c1; color: #241f3d;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #b8873a;">01 ・ PC / スマホ</div>
+        <div style="font-size: 17px; font-weight: 900; margin-top: 8px;">ホームページ</div>
+        <p style="margin: 6px 0 0; font-size: 13px; color: #6e6693; line-height: 1.8;">サービス紹介。お悩み・使い方（4タップ）・特長・名前の由来・お問い合わせ。</p>
+      </a>
+      <a href="./Review%20Page.dc.html" style="display: block; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px; color: #241f3d;" style-hover="border-color: #6852c1; color: #241f3d;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #b8873a;">02 ・ スマホ</div>
+        <div style="font-size: 17px; font-weight: 900; margin-top: 8px;">口コミページ（QRの読み取り先）</div>
+        <p style="margin: 6px 0 0; font-size: 13px; color: #6e6693; line-height: 1.8;">★評価 → 決め手 → メニュー → 文章の自動生成 → Googleへ投稿。低評価はご意見フォームへ。</p>
+      </a>
+    </div>
+
+    <div style="margin-top: 30px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #6852c1;">店舗オーナー向け</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px;">
+      <a href="./Owner%20Login.dc.html" style="display: block; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px; color: #241f3d;" style-hover="border-color: #6852c1; color: #241f3d;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #b8873a;">03 ・ PC / スマホ</div>
+        <div style="font-size: 17px; font-weight: 900; margin-top: 8px;">ログイン</div>
+        <p style="margin: 6px 0 0; font-size: 13px; color: #6e6693; line-height: 1.8;">メール＋パスワードでログイン。サポートへはメールで問い合わせ。</p>
+      </a>
+      <a href="./Owner%20Console.dc.html" style="display: block; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px; color: #241f3d;" style-hover="border-color: #6852c1; color: #241f3d;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #b8873a;">04 ・ PC / スマホ</div>
+        <div style="font-size: 17px; font-weight: 900; margin-top: 8px;">店舗管理</div>
+        <p style="margin: 6px 0 0; font-size: 13px; color: #6e6693; line-height: 1.8;">集計（★分布・ファネル）、届いたご意見（全回答）、店舗設定・QR・卓上POP。</p>
+      </a>
+    </div>
+
+    <div style="margin-top: 30px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #6852c1;">運営向け</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px;">
+      <a href="./Operator%20Console.dc.html" style="display: block; background: #ffffff; border: 1px solid rgba(36,31,61,0.1); border-radius: 18px; padding: 22px; color: #241f3d;" style-hover="border-color: #6852c1; color: #241f3d;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #b8873a;">05 ・ PC</div>
+        <div style="font-size: 17px; font-weight: 900; margin-top: 8px;">運営コンソール</div>
+        <p style="margin: 6px 0 0; font-size: 13px; color: #6e6693; line-height: 1.8;">店舗一覧、新規ページ発行、店舗設定・QR、全店舗の集計。</p>
+      </a>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>

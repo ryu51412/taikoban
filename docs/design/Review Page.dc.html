@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f3ece1; }
+  body { font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; color: #2a2350; line-height: 1.75; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #6852c1; text-decoration: none; }
+  a:hover { color: #52409c; }
+  textarea { font-family: inherit; }
+  :focus-visible { outline: 2.5px solid #6852c1; outline-offset: 3px; border-radius: 6px; }
+  @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes starTap { 0% { transform: scale(1); } 40% { transform: scale(1.38) rotate(-6deg); } 70% { transform: scale(0.96); } 100% { transform: scale(1.06); } }
+  @keyframes ripple { from { opacity: .5; transform: scale(.4); } to { opacity: 0; transform: scale(2.4); } }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .15; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: radial-gradient(120% 60% at 50% 0%, #faf5ec 0%, #f3ece1 55%, #ece3d4 100%); padding: 28px 18px 40px; display: flex; flex-direction: column; align-items: center; gap: 18px;">
+
+  <div style="width: 100%; max-width: 430px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <div style="width: 30px; height: 30px; border-radius: 10px; background: #6852c1; color: #ffffff; font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px -6px rgba(104,82,193,0.8);">判</div>
+      <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #8b7f63;">太鼓判くん</div>
+    </div>
+    <div style="font-size: 12px; font-weight: 500; color: #8b7f63;">{{ stepCounter }}</div>
+  </div>
+
+  <div style="width: 100%; max-width: 430px; background: #ffffff; border-radius: 26px; box-shadow: 0 2px 4px rgba(42,35,80,0.05), 0 26px 50px -28px rgba(104,82,193,0.55); overflow: hidden;">
+
+    <div style="padding: 26px 24px 22px; background: linear-gradient(155deg, #6852c1 0%, #7b67c9 60%, #8474cd 100%); color: #ffffff; text-align: center;">
+      <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.86);">ご来店ありがとうございました</div>
+      <h1 style="margin: 8px 0 0; font-size: 27px; font-weight: 900; line-height: 1.35; letter-spacing: 0.01em;">{{ storeName }}</h1>
+      <div style="display: flex; gap: 6px; justify-content: center; margin-top: 18px;">
+        <sc-for list="{{ progress }}" as="p" hint-placeholder-count="4">
+          <div style="{{ p.style }}"></div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding: 26px 22px 24px;">
+
+      <sc-if value="{{ isRate }}" hint-placeholder-val="{{ true }}">
+        <div style="text-align: center; animation: popIn .3s ease both;">
+          <div style="font-size: 17px; font-weight: 700;">今日のお食事はいかがでしたか？</div>
+          <div style="font-size: 13px; color: #6b6396; margin-top: 6px;">星をタップするだけ。30秒で終わります。</div>
+          <div style="display: flex; justify-content: center; gap: 2px; margin-top: 20px;">
+            <sc-for list="{{ starButtons }}" as="s" hint-placeholder-count="5">
+              <button style="{{ s.style }}" onClick="{{ s.pick }}" aria-label="{{ s.aria }}">★</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #a49b7f; margin: 2px 8px 0;">
+            <span>もう少し</span>
+            <span>最高</span>
+          </div>
+          <div style="{{ ratingWordStyle }}">{{ ratingWord }}</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAspect }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align: center; animation: popIn .3s ease both;">
+          <div style="font-size: 22px; font-weight: 900; color: #6852c1;">ありがとうございます！</div>
+          <div style="font-size: 15px; font-weight: 700; margin-top: 16px;">今日の決め手はどれですか？</div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 16px;">
+            <sc-for list="{{ aspectChips }}" as="c" hint-placeholder-count="3">
+              <button style="{{ c.style }}" onClick="{{ c.pick }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align: center; animation: popIn .3s ease both;">
+          <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #8b7f63;">あと1つだけ</div>
+          <div style="font-size: 17px; font-weight: 700; margin-top: 8px;">特に良かったメニューは？</div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 16px;">
+            <sc-for list="{{ menuChips }}" as="c" hint-placeholder-count="3">
+              <button style="{{ c.style }}" onClick="{{ c.pick }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+          <button style="margin-top: 16px; background: none; border: none; font-family: inherit; font-size: 13px; color: #8b7f63; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;" onClick="{{ skipMenu }}">選ばずに進む</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPositive }}" hint-placeholder-val="{{ false }}">
+        <div style="animation: popIn .3s ease both;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+            <div style="font-size: 17px; font-weight: 700;">口コミ文ができました</div>
+            <button style="background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 700; color: #6852c1; cursor: pointer; padding: 4px 0; white-space: nowrap;" onClick="{{ regenerate }}">別の文にする</button>
+          </div>
+          <div style="font-size: 12.5px; color: #6b6396; margin-top: 4px;">{{ draftHint }}</div>
+
+          <div style="margin-top: 14px; border: 1.5px solid #ded5ef; border-radius: 16px; background: #f8f6fd; padding: 4px; position: relative;">
+            <textarea rows="7" style="width: 100%; display: block; border: none; background: transparent; resize: vertical; font-size: 15px; line-height: 1.85; color: #2a2350; padding: 12px 13px; min-height: 152px;" value="{{ visibleDraft }}" onChange="{{ editDraft }}" readOnly="{{ typing }}"></textarea>
+            <div style="{{ typingBadgeStyle }}">
+              <span style="width: 6px; height: 6px; border-radius: 999px; background: #6852c1; display: block; animation: blink .9s steps(1) infinite;"></span>
+              生成中
+            </div>
+          </div>
+
+          <button style="{{ primaryStyle }}" onClick="{{ copyAndOpen }}">
+            <span style="width: 24px; height: 24px; border-radius: 999px; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; flex: none;">G</span>
+            {{ primaryLabel }}
+          </button>
+          <div style="font-size: 12px; color: #8b7f63; text-align: center; margin-top: 10px; line-height: 1.65;">コピーしてGoogleを開きます。投稿画面で長押し＆貼り付けしてください。</div>
+
+          <sc-if value="{{ hasCoupon }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top: 18px; display: flex; gap: 12px; align-items: center; padding: 15px 16px; border-radius: 16px; background: #fdf8ec; border: 1.5px dashed #b8873a;">
+              <div style="width: 34px; height: 34px; border-radius: 999px; background: #b8873a; color: #fdf8ec; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex: none;">判</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #b8873a;">投稿でもらえる特典</div>
+                <div style="font-size: 14.5px; font-weight: 700; margin-top: 2px; color: #2a2350;">{{ couponText }}</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isNegative }}" hint-placeholder-val="{{ false }}">
+        <div style="animation: popIn .3s ease both;">
+          <div style="font-size: 18px; font-weight: 900; color: #2a2350;">お聞かせいただけますか</div>
+          <div style="font-size: 13.5px; color: #6b6396; margin-top: 8px; line-height: 1.8;">この内容は店長にだけ届きます。Googleには投稿されません。今後の改善に必ず活かします。</div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;">
+            <sc-for list="{{ issueChips }}" as="c" hint-placeholder-count="4">
+              <button style="{{ c.style }}" onClick="{{ c.pick }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="margin-top: 14px; border: 1.5px solid #e2dbcd; border-radius: 16px; background: #faf7f1; padding: 4px;">
+            <textarea rows="5" placeholder="気になった点をご記入ください（任意）" style="width: 100%; display: block; border: none; background: transparent; resize: vertical; font-size: 15px; line-height: 1.8; color: #2a2350; padding: 12px 13px; min-height: 112px;" value="{{ feedback }}" onChange="{{ editFeedback }}"></textarea>
+          </div>
+
+          <button style="width: 100%; margin-top: 16px; padding: 17px 20px; border: none; border-radius: 999px; background: #6852c1; color: #ffffff; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 12px 24px -14px rgba(104,82,193,0.9);" style-hover="background: #5a45ad;" onClick="{{ sendFeedback }}">送信する</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isThanks }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align: center; animation: popIn .3s ease both; padding: 8px 0;">
+          <div style="width: 58px; height: 58px; margin: 0 auto; border-radius: 999px; background: #6852c1; color: #ffffff; font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center;">判</div>
+          <div style="font-size: 20px; font-weight: 900; margin-top: 16px;">ありがとうございました</div>
+          <div style="font-size: 13.5px; color: #6b6396; margin-top: 8px; line-height: 1.8;">いただいたご意見は店長が直接確認します。<br />またのご来店を心よりお待ちしております。</div>
+          <sc-if value="{{ hasCoupon }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center; text-align: left; padding: 15px 16px; border-radius: 16px; background: #fdf8ec; border: 1.5px dashed #b8873a;">
+              <div style="width: 34px; height: 34px; border-radius: 999px; background: #b8873a; color: #fdf8ec; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex: none;">判</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #b8873a;">この画面を店員にお見せください</div>
+                <div style="font-size: 14.5px; font-weight: 700; margin-top: 2px; color: #2a2350;">{{ couponText }}</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <sc-if value="{{ canGoBack }}" hint-placeholder-val="{{ false }}">
+    <button style="background: none; border: none; font-family: inherit; font-size: 13px; font-weight: 500; color: #8b7f63; cursor: pointer; padding: 4px 10px;" onClick="{{ goBack }}">← ひとつ前にもどる</button>
+  </sc-if>
+
+  <div style="font-size: 11.5px; color: #a49b7f; letter-spacing: 0.04em; margin-top: auto; padding-top: 8px;">判 太鼓判くん</div>
+
+  <div style="{{ toastStyle }}">{{ toastMsg }}</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:860},&quot;storeName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ホルモン丑之助&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;店舗設定&quot;},&quot;googleUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://g.page/r/CZLVVImPLaEtEAE/review&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;店舗設定&quot;},&quot;couponText&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;当日の利用のみ500円引き&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;店舗設定&quot;},&quot;threshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:1,&quot;max&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;フロー&quot;},&quot;menuStep&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;フロー&quot;}}">
+const ASPECT_TEMPLATES = {
+  "旨味": ["旨味がしっかりしていて、箸が止まりませんでした。", "素材の旨味が濃く、想像以上の美味しさでした。", "噛むほどに旨味が広がって感動しました。"],
+  "ビール": ["キンキンに冷えたビールとの相性が抜群でした。", "ビールがすすむ味付けで、つい何杯もいただきました。", "ビールと一緒にいただくと最高でした。"],
+  "店員": ["店員さんの対応が気持ちよく、居心地の良い時間でした。", "スタッフの方が親切で、安心して過ごせました。", "店員さんのおすすめが的確で助かりました。"],
+  "料理": ["料理がとても美味しく、大満足でした。", "一品一品丁寧に作られているのが伝わりました。"],
+  "接客": ["接客が丁寧で、また来たいと思いました。", "細やかな心配りが感じられる接客でした。"],
+  "雰囲気": ["お店の雰囲気がとても良く、リラックスして過ごせました。", "落ち着いた空間で、ゆっくり食事を楽しめました。"]
+};
+const GENERIC = ["{aspect}がとても良く、大満足でした。", "{aspect}に大変満足しました。", "{aspect}の良さが特に記憶に残りました。"];
+const OPENERS = ["{store}に伺いました。", "{store}を利用しました。", "先日、{store}でお食事しました。", "{store}へ行ってきました。"];
+const CLOSERS = ["また利用したいと思います。", "機会があればまた行きたいと思います。", "リピートしたいお店です。", "友人にもおすすめしたいです。"];
+const MENUS = ["{menu}が特においしかったです。", "{menu}は特におすすめです。", "特に{menu}が印象に残りました。", "{menu}をぜひ食べてみてほしいです。"];
+
+const pick = (a, seed) => a[Math.floor(Math.random() * a.length)];
+
+class Component extends DCLogic {
+  state = { step: "rate", rating: 0, aspect: null, menu: null, draft: "", feedback: "", issues: [], copied: false, toast: "", tapped: 0, typed: 0, typing: false };
+
+  type(text) {
+    clearInterval(this._type);
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      this.setState({ draft: text, typed: text.length, typing: false });
+      return;
+    }
+    this.setState({ draft: text, typed: 0, typing: true });
+    this._type = setInterval(() => {
+      this.setState((st) => {
+        const next = st.typed + 2;
+        if (next >= st.draft.length) {
+          clearInterval(this._type);
+          return { typed: st.draft.length, typing: false };
+        }
+        return { typed: next };
+      });
+    }, 26);
+  }
+
+  componentWillUnmount() { clearInterval(this._type); clearTimeout(this._s); clearTimeout(this._t); }
+
+  cfg() {
+    return {
+      name: this.props.storeName || "ホルモン丑之助",
+      url: this.props.googleUrl || "https://g.page/r/CZLVVImPLaEtEAE/review",
+      threshold: this.props.threshold || 4,
+      coupon: this.props.couponText === undefined ? "当日の利用のみ500円引き" : this.props.couponText,
+      email: "ryuitirou1212@gmail.com",
+      aspects: ["旨味", "ビール", "店員"],
+      menus: this.props.menuStep === false ? null : ["肉さし", "ビビンバ", "白米"]
+    };
+  }
+
+  compose(aspect, menu) {
+    const c = this.cfg();
+    const opener = pick(OPENERS).replace("{store}", c.name);
+    const body = ASPECT_TEMPLATES[aspect] ? pick(ASPECT_TEMPLATES[aspect]) : pick(GENERIC).replace("{aspect}", aspect);
+    const menuPart = menu ? pick(MENUS).replace("{menu}", menu) + " " : "";
+    return opener + body + " " + menuPart + pick(CLOSERS);
+  }
+
+  toast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: "" }), 2000);
+  }
+
+  copy(text) {
+    let ok = false;
+    try {
+      const tmp = document.createElement("textarea");
+      tmp.value = text; tmp.style.position = "fixed"; tmp.style.opacity = "0";
+      document.body.appendChild(tmp); tmp.focus(); tmp.select();
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); ok = true; }
+      else { ok = document.execCommand("copy"); }
+      document.body.removeChild(tmp);
+    } catch (e) { ok = false; }
+    return ok;
+  }
+
+  chip(active, tone) {
+    const on = tone === "warm" ? ["#6852c1", "#6852c1", "#ffffff"] : ["#8b7f63", "#8b7f63", "#ffffff"];
+    return `padding: 12px 20px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; min-height: 46px; transition: transform .15s ease; border: 1.5px solid ${active ? on[0] : "#ded5ef"}; background: ${active ? on[1] : "#ffffff"}; color: ${active ? on[2] : "#4b4272"}; transform: ${active ? "scale(1.03)" : "none"};`;
+  }
+
+  renderVals() {
+    const s = this.state, c = this.cfg();
+    const order = ["rate", "aspect", "menu", "positive"];
+    const idx = order.indexOf(s.step);
+
+    return {
+      storeName: c.name,
+      couponText: c.coupon,
+      hasCoupon: !!c.coupon,
+      isRate: s.step === "rate",
+      isAspect: s.step === "aspect",
+      isMenu: s.step === "menu",
+      isPositive: s.step === "positive",
+      isNegative: s.step === "negative",
+      isThanks: s.step === "thanks",
+      stepCounter: idx >= 0 ? `STEP ${idx + 1} / ${c.menus ? 4 : 3}` : "",
+      progress: (c.menus ? order : ["rate", "aspect", "positive"]).map((k, i) => ({
+        style: `height: 4px; width: ${i <= idx ? 26 : 18}px; border-radius: 999px; background: ${i <= idx && idx >= 0 ? "#ffffff" : "rgba(255,255,255,0.32)"}; transition: all .25s ease;`
+      })),
+
+      starButtons: [1, 2, 3, 4, 5].map((n) => ({
+        aria: `星${n}つ`,
+        style: `width: 56px; height: 56px; flex: none; border: none; background: transparent; cursor: pointer; padding: 0; font-size: 40px; line-height: 1; transition: transform .18s ease, color .18s ease; color: ${n <= s.rating ? "#6852c1" : "#ded5ef"}; transform: ${n <= s.rating ? "scale(1.06)" : "none"}; animation: ${n <= s.tapped ? `starTap .42s ease ${(n - 1) * 55}ms both` : "none"};`,
+        pick: () => {
+          this.setState({ rating: n, tapped: n });
+          clearTimeout(this._s);
+          this._s = setTimeout(() => this.setState({ step: n >= c.threshold ? "aspect" : "negative", tapped: 0 }), 480);
+        }
+      })),
+      ratingWord: ["", "申し訳ありません…", "ご期待に添えず…", "ありがとうございます", "うれしいです！", "最高の評価、感激です！"][s.rating] || "",
+      ratingWordStyle: `font-size: 13px; font-weight: 700; color: #6852c1; margin-top: 12px; height: 20px; transition: opacity .25s ease; opacity: ${s.rating ? 1 : 0};`,
+
+      aspectChips: c.aspects.map((label) => ({
+        label,
+        style: this.chip(s.aspect === label, "warm"),
+        pick: () => {
+          this.setState({ aspect: label });
+          clearTimeout(this._s);
+          this._s = setTimeout(() => {
+            if (c.menus) this.setState({ step: "menu" });
+            else { this.setState({ step: "positive", copied: false }); this.type(this.compose(label, null)); }
+          }, 240);
+        }
+      })),
+
+      menuChips: (c.menus || []).map((label) => ({
+        label,
+        style: this.chip(s.menu === label, "warm"),
+        pick: () => {
+          this.setState({ menu: label });
+          clearTimeout(this._s);
+          this._s = setTimeout(() => { this.setState({ step: "positive", copied: false }); this.type(this.compose(s.aspect, label)); }, 240);
+        }
+      })),
+      skipMenu: () => { this.setState({ step: "positive", menu: null, copied: false }); this.type(this.compose(s.aspect, null)); },
+
+      visibleDraft: s.typing ? s.draft.slice(0, s.typed) : s.draft,
+      typing: s.typing,
+      draftHint: s.typing ? "あなたの選択から文章を組み立てています…" : "そのままでも、書き足してもOKです。",
+      typingBadgeStyle: `position: absolute; top: 10px; right: 12px; display: ${s.typing ? "flex" : "none"}; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: #6852c1; background: #ffffff; padding: 4px 9px; border-radius: 999px; border: 1px solid #ded5ef;`,
+      editDraft: (e) => this.setState({ draft: e.target.value, typed: e.target.value.length, copied: false }),
+      regenerate: () => { this.setState({ copied: false }); this.type(this.compose(s.aspect || c.aspects[0], s.menu)); },
+      primaryLabel: s.typing ? "文章を生成中…" : (s.copied ? "コピー済み・Googleを開く" : "コピーしてGoogleに投稿"),
+      primaryStyle: `width: 100%; margin-top: 16px; padding: 17px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 999px; font-family: inherit; font-size: 16px; font-weight: 700; cursor: ${s.typing ? "default" : "pointer"}; background: ${s.typing ? "#b9b0dd" : (s.copied ? "#3f7a5c" : "#6852c1")}; color: #ffffff; box-shadow: 0 14px 26px -14px rgba(104,82,193,0.9); transition: background .3s ease;`,
+      copyAndOpen: () => {
+        if (s.typing) return;
+        const ok = this.copy(s.draft);
+        this.setState({ copied: true });
+        this.toast(ok ? "コピーしました。貼り付けて投稿してください" : "手動でコピーしてください");
+        setTimeout(() => { try { window.open(c.url, "_blank", "noopener"); } catch (e) {} }, 400);
+      },
+
+      issueChips: ["待ち時間", "料理の味", "接客", "店内の清潔さ", "価格"].map((label) => ({
+        label,
+        style: this.chip(s.issues.indexOf(label) >= 0, "muted"),
+        pick: () => this.setState((st) => ({
+          issues: st.issues.indexOf(label) >= 0 ? st.issues.filter((x) => x !== label) : st.issues.concat([label])
+        }))
+      })),
+      feedback: s.feedback,
+      editFeedback: (e) => this.setState({ feedback: e.target.value }),
+      sendFeedback: () => {
+        const body = (s.issues.length ? "気になった点: " + s.issues.join("、") + "\n\n" : "") + "ご意見:\n" + s.feedback;
+        try {
+          window.location.href = `mailto:${c.email}?subject=${encodeURIComponent(c.name + " への口コミフォームより")}&body=${encodeURIComponent(body)}`;
+        } catch (e) {}
+        this.setState({ step: "thanks" });
+      },
+
+      canGoBack: s.step === "aspect" || s.step === "menu" || s.step === "positive" || s.step === "negative",
+      goBack: () => {
+        const back = { aspect: "rate", negative: "rate", menu: "aspect", positive: c.menus ? "menu" : "aspect" };
+        this.setState({ step: back[s.step] || "rate", copied: false });
+      },
+
+      toastMsg: s.toast,
+      toastStyle: `position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(${s.toast ? "0" : "8px"}); background: #2a2350; color: #f3ece1; font-size: 13px; font-weight: 700; padding: 11px 20px; border-radius: 999px; box-shadow: 0 16px 30px -14px rgba(42,35,80,0.8); opacity: ${s.toast ? 1 : 0}; pointer-events: none; transition: opacity .25s ease, transform .25s ease; z-index: 30; max-width: 88vw; text-align: center;`
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f7f2ea; }
+  body { font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; color: #241f3d; line-height: 1.75; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #6852c1; text-decoration: none; }
+  a:hover { color: #52409c; }
+  input, textarea { font-family: inherit; }
+  :focus-visible { outline: 2.5px solid #6852c1; outline-offset: 2px; border-radius: 6px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); background: #f7f2ea;">
+
+  <div style="background: linear-gradient(158deg, #6852c1 0%, #7b67c9 55%, #8474cd 100%); color: #ffffff; padding: clamp(32px, 5vw, 56px); display: flex; flex-direction: column; justify-content: space-between; gap: 32px; min-height: 260px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="width: 32px; height: 32px; border-radius: 10px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.45); font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center;">判</span>
+      <span style="font-size: 16px; font-weight: 900;">太鼓判くん</span>
+      <span style="font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 0.06em;">店舗管理</span>
+    </div>
+
+    <div>
+      <h1 style="margin: 0; font-size: clamp(22px, 3.2vw, 30px); font-weight: 900; line-height: 1.55;">お客様の声を、<br />今日の一手に。</h1>
+      <p style="margin: 14px 0 0; font-size: 14.5px; color: rgba(255,255,255,0.85); line-height: 1.95; max-width: 40ch;">届いた口コミとご意見、★の推移、QRコードの管理。店舗のページに関わることは、すべてこの画面から。</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.86);">
+        <span style="width: 5px; height: 5px; border-radius: 999px; background: #ffffff; flex: none;"></span>Googleに投稿された口コミを一覧で確認
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.86);">
+        <span style="width: 5px; height: 5px; border-radius: 999px; background: #ffffff; flex: none;"></span>お店にだけ届いたご意見に対応
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.86);">
+        <span style="width: 5px; height: 5px; border-radius: 999px; background: #ffffff; flex: none;"></span>QRコードと卓上POPをいつでも再発行
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: clamp(28px, 5vw, 56px) clamp(20px, 5vw, 48px); display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 400px;">
+
+      <div style="animation: fadeUp .3s ease both;">
+          <h2 style="margin: 0; font-size: 21px; font-weight: 900;">ログイン</h2>
+          <p style="margin: 6px 0 0; font-size: 13px; color: #6e6693;">ご契約時にお送りしたメールアドレスでログインしてください。</p>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 24px;">
+            <label style="display: block;">
+              <span style="font-size: 12.5px; font-weight: 700;">メールアドレス</span>
+              <input type="email" autoComplete="email" placeholder="owner@example.com" style="{{ emailStyle }}" value="{{ email }}" onChange="{{ setEmail }}" onKeyDown="{{ onKeyLogin }}" />
+            </label>
+
+            <div>
+                <div style="font-size: 12.5px; font-weight: 700;">パスワード</div>
+                <span style="position: relative; display: block;">
+                  <input type="{{ pwType }}" autoComplete="current-password" placeholder="8文字以上" style="{{ pwStyle }}" value="{{ password }}" onChange="{{ setPassword }}" onKeyDown="{{ onKeyLogin }}" />
+                  <button style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: none; border: none; font-family: inherit; font-size: 11.5px; font-weight: 700; color: #6e6693; cursor: pointer; padding: 6px 8px;" onClick="{{ togglePw }}">{{ pwToggleLabel }}</button>
+                </span>
+            </div>
+
+            <div style="{{ errorStyle }}">{{ error }}</div>
+
+            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer;">
+              <button style="{{ rememberStyle }}" onClick="{{ toggleRemember }}"><span style="{{ rememberMark }}">✓</span></button>
+              <span style="font-size: 12.5px; color: #4b4272;">このブラウザでログインを保持する</span>
+            </label>
+
+            <button style="{{ submitStyle }}" onClick="{{ submit }}">
+              <span style="{{ spinnerStyle }}"></span>{{ submitLabel }}
+            </button>
+          </div>
+
+          <div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(36,31,61,0.1); display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span style="font-size: 12.5px; color: #6e6693;">ログインできない</span>
+            <a href="mailto:ryu.ishizaki514@gmail.com?subject=%E3%80%90%E5%A4%AA%E9%BC%93%E5%88%A4%E3%81%8F%E3%82%93%E3%80%91%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B&body=%E5%BA%97%E8%88%97%E5%90%8D%EF%BC%9A%0D%0A%E3%81%94%E9%80%A3%E7%B5%A1%E5%85%88%EF%BC%9A%0D%0A%0D%0A%E3%81%8A%E5%9B%B0%E3%82%8A%E3%81%AE%E5%86%85%E5%AE%B9%EF%BC%9A%0D%0A" style="margin-left: auto; padding: 9px 16px; border: 1px solid rgba(104,82,193,0.3); border-radius: 999px; background: #ffffff; color: #52409c; font-size: 12.5px; font-weight: 700;" style-hover="background: #f1edfb; color: #52409c;">サポートにメールで問い合わせ</a>
+          </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:720}}">
+class Component extends DCLogic {
+  state = { email: "", password: "", showPw: false, remember: true, error: "", loading: false };
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  field(hasError) {
+    return `width: 100%; margin-top: 6px; padding: 13px 14px; border: 1px solid ${hasError ? "#c0562f" : "rgba(36,31,61,0.18)"}; border-radius: 12px; font-size: 14px; color: #241f3d; background: #ffffff;`;
+  }
+
+  doLogin() {
+    const s = this.state;
+    if (s.loading) return;
+    const err = this.validate(true);
+    if (err) { this.setState({ error: err }); return; }
+    this.setState({ loading: true, error: "" });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      this.setState({ loading: false });
+      window.location.href = "Owner Console.dc.html";
+    }, 900);
+  }
+
+  validate(needPw) {
+    const s = this.state;
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email.trim())) return "メールアドレスの形式をご確認ください。";
+    if (needPw && s.password.length < 8) return "パスワードは8文字以上です。";
+    return "";
+  }
+
+  renderVals() {
+    const s = this.state;
+    const hasError = !!s.error;
+
+    return {
+      email: s.email,
+      password: s.password,
+      setEmail: (e) => this.setState({ email: e.target.value, error: "" }),
+      setPassword: (e) => this.setState({ password: e.target.value, error: "" }),
+      emailStyle: this.field(hasError && s.error.indexOf("メール") === 0),
+      pwStyle: this.field(hasError && s.error.indexOf("パスワード") === 0) + " padding-right: 58px;",
+      pwType: s.showPw ? "text" : "password",
+      pwToggleLabel: s.showPw ? "隠す" : "表示",
+      togglePw: () => this.setState({ showPw: !s.showPw }),
+
+      rememberStyle: `width: 20px; height: 20px; flex: none; border-radius: 6px; border: 1px solid ${s.remember ? "#6852c1" : "rgba(36,31,61,0.24)"}; background: ${s.remember ? "#6852c1" : "#ffffff"}; color: #ffffff; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;`,
+      rememberMark: `opacity: ${s.remember ? 1 : 0}; line-height: 1;`,
+      toggleRemember: () => this.setState({ remember: !s.remember }),
+
+      error: s.error,
+      errorStyle: `font-size: 12.5px; font-weight: 700; color: #a8452a; background: #fbeee9; border: 1px solid rgba(168,69,42,0.24); border-radius: 12px; padding: 11px 13px; line-height: 1.7; display: ${hasError ? "block" : "none"};`,
+
+      submitLabel: s.loading ? "確認しています…" : "ログイン",
+      submitStyle: `width: 100%; margin-top: 4px; padding: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: ${s.loading ? "default" : "pointer"}; background: ${s.loading ? "#b9b0dd" : "#6852c1"}; color: #ffffff; box-shadow: 0 16px 28px -16px rgba(104,82,193,0.9); transition: background .25s ease;`,
+      spinnerStyle: `width: 15px; height: 15px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #ffffff; animation: spin .7s linear infinite; display: ${s.loading ? "block" : "none"};`,
+
+      submit: () => this.doLogin(),
+      onKeyLogin: (e) => { if (e.key === "Enter") { e.preventDefault(); this.doLogin(); } }
+    };
+  }
+}
+
+</script>
+</body>
+</html>
